@@ -1,5 +1,40 @@
 import { useState } from 'react'
 
+const Header = ({heading}) => {
+  return (
+    <h1>{heading}</h1>
+  )
+}
+
+const Button  = ({onClick, text}) => {
+  return (
+    <button onClick={onClick}>{text}</button>
+  )
+}
+
+const Anecdote = ({anecdote, votes}) => {
+  return (
+    <p>
+      {anecdote}<br />
+      {'has ' + votes + ' votes'}
+    </p>
+  )
+}
+
+const TopAnecdote = ({anecdotes, points}) => {
+  const mostVotedAnecdoteIndex = (points) => {
+    return points.indexOf(Math.max(...points))
+  }
+
+  if (Math.max(...points) == 0) {
+    return (<p>No votes have been cast yet. Be the first to cast your vote!</p>)
+  }
+
+  return (
+    <Anecdote anecdote={anecdotes[mostVotedAnecdoteIndex(points)]} votes={points[mostVotedAnecdoteIndex(points)]} />
+  )
+}
+
 const App = () => {
   const anecdotes = [
     'If it hurts, do it more often.',
@@ -13,17 +48,35 @@ const App = () => {
   ]
 
   const [selected, setSelected] = useState(0)
+  const [points, setPoints] = useState(Array(anecdotes.length).fill(0))
 
   const randomIndex = (max) => {
+    console.log(Math.floor(Math.random() * max))
     return Math.floor(Math.random() * max)
+  }
+
+  const updatePoints = (points, selected) => {
+    console.log(points)
+    const copy = [...points]
+    copy[selected] += 1
+    setPoints(copy)
+  }
+
+  const resetPoints = (points) => {
+    setPoints(points.map((num) => num*0))
   }
 
   return (
     <div>
-      {anecdotes[selected]}
+      <Header heading='Anecdote of the day' />
+      <Anecdote anecdote={anecdotes[selected]} votes={points[selected]} />
       <div>
-        <button onClick={() => setSelected(randomIndex(anecdotes.length))}>next anecdote</button>
-      </div>      
+        <Button text='vote' onClick={() => updatePoints(points, selected)} />
+        <Button text='next anecdote' onClick={() => setSelected(randomIndex(anecdotes.length))} />
+      </div>
+      <Header heading='Anecdote with most votes' />
+      <TopAnecdote anecdotes={anecdotes} points={points} />
+      <Button text='reset votes' onClick={() => resetPoints(points)} />
     </div>
   )
 }
