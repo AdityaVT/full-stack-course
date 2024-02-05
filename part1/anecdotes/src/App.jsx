@@ -51,12 +51,10 @@ const App = () => {
   const [points, setPoints] = useState(Array(anecdotes.length).fill(0))
 
   const randomIndex = (max) => {
-    console.log(Math.floor(Math.random() * max))
     return Math.floor(Math.random() * max)
   }
 
   const updatePoints = (points, selected) => {
-    console.log(points)
     const copy = [...points]
     copy[selected] += 1
     setPoints(copy)
