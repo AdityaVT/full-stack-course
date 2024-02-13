@@ -2,10 +2,14 @@ import { useState } from 'react'
 
 const App = () => {
   const [persons, setPersons] = useState([
-    { name: 'Arto Hellas' , id: 1, number: '040-1234567'}
+    { name: 'Arto Hellas', number: '040-123456', id: 1 },
+    { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
+    { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
+    { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 }
   ])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
+  const [filter, setFilter] = useState('')
 
   const checkNameExists = (name, persons) => {
     const nameList = persons.map(person => person.name)
@@ -46,6 +50,16 @@ const App = () => {
     setNewNumber(event.target.value)
   }
 
+  const handleFilter = (event) => {
+    setFilter(event.target.value)
+  }
+
+  const personsToShow = persons.filter((person) => {
+    if (person.name.toLowerCase().includes(filter.toLowerCase())) {
+      return person
+    }
+  })
+
   // const clearRecords = () => {
   //   setPersons([])
   // }
@@ -67,7 +81,10 @@ const App = () => {
       <div>debug: {newName} {newNumber}</div>
       <h2>Names</h2>
       <div>
-        {persons.map(person =>
+        <div>
+          filter names with: <input value={filter} onChange={handleFilter} />
+        </div>
+        {personsToShow.map(person =>
           <p key={person.id}>{person.name} {person.number}</p>
         )}
       </div>
