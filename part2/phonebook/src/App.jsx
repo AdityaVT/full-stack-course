@@ -1,5 +1,60 @@
 import { useState } from 'react'
 
+const Header = (props) => {
+  return (
+    <h2>{props.text}</h2>
+  )
+}
+
+const Person = (props) => {
+  return (
+    <p key={props.person.id}>{props.person.name} {props.person.number}</p>
+  )
+}
+
+const Persons = (props) => {
+  return (
+    <div>
+      {props.persons.map(person =>
+          <Person key={person.id} person={person} />
+      )}
+    </div>
+  )
+}
+
+const Input = (props) => {
+  return (
+    <div>
+      {props.text}: <input value={props.value} onChange={props.onChange}/>
+    </div>  
+  )
+}
+
+const Button = (props) => {
+  return (
+    <div>
+      <button type={props.type}>{props.text}</button>
+    </div>  
+  )
+}
+
+const PersonForm = (props) => {
+  return (
+    <form onSubmit={props.onSubmit}>
+      {props.inputs.map(input =>
+        <Input key={input.id} text={input.text} value={input.value} onChange={input.onChange} />
+      )}
+      <Button text='add' type='submit' />
+    </form>
+  )
+}
+
+const Filter = (props) => {
+  return (
+    <Input text={props.text} value={props.value} onChange={props.onChange} />
+  )
+}
+
 const App = () => {
   const [persons, setPersons] = useState([
     { name: 'Arto Hellas', number: '040-123456', id: 1 },
@@ -60,37 +115,15 @@ const App = () => {
     }
   })
 
-  // const clearRecords = () => {
-  //   setPersons([])
-  // }
-
   return (
     <div>
-      <h2>Phonebook</h2>
-      <form onSubmit={addEntry}>
-        <div>
-          name: <input value={newName} onChange={handleNameChange}/>
-        </div>
-        <div>
-          number: <input value={newNumber} onChange={handleNumberChange}/>
-        </div>
-        <div>
-          <button type="submit">add</button>
-        </div>
-      </form>
-      <div>debug: {newName} {newNumber}</div>
-      <h2>Names</h2>
+      <Header text='Phonebook' />
+      <PersonForm inputs={[{id: 1, text: 'name', value: newName, onChange: handleNameChange}, {id: 2, text: 'number', value: newNumber, onChange: handleNumberChange}]} onSubmit={addEntry} />
+      <Header text='Names' />
       <div>
-        <div>
-          filter names with: <input value={filter} onChange={handleFilter} />
-        </div>
-        {personsToShow.map(person =>
-          <p key={person.id}>{person.name} {person.number}</p>
-        )}
+        <Filter text='filter names with' value={filter} onChange={handleFilter} />
+        <Persons persons={personsToShow} />
       </div>
-      {/* <div>
-        <button type="submit" onClick={clearRecords}>clear</button>
-      </div> */}
     </div>
   )
 }
