@@ -10,7 +10,9 @@ const Header = (props) => {
 
 const Person = (props) => {
   return (
-    <p key={props.person.id}>{props.person.name} {props.person.number}</p>
+    <div>
+      <p>{props.person.name} {props.person.number} <button onClick={() => props.deleteHandler(props.person.id)}>delete</button></p>
+    </div>
   )
 }
 
@@ -18,7 +20,7 @@ const Persons = (props) => {
   return (
     <div>
       {props.persons.map(person =>
-          <Person key={person.id} person={person} />
+          <Person key={person.id} person={person} deleteHandler={props.deleteHandler} />
       )}
     </div>
   )
@@ -125,6 +127,25 @@ const App = () => {
     }
   })
 
+  const deletePerson = (personId) => {
+    const person = persons.find(person => person.id === personId)
+
+    if (window.confirm(`Delete ${person.name}`)) {
+      console.log(`Deleting person with id ${personId}`)
+      personService
+        .deleteRecord(personId)
+        .then(response => {
+          console.log(`Deleted person with id ${personId}`)
+          setPersons(persons.filter(person => person.id !== personId))
+        })
+        .catch(error => {
+          console.log(error)
+        })
+    } else {
+      console.log(`Delete request cancelled`)
+    }
+  }
+
   return (
     <div>
       <Header text='Phonebook' />
@@ -132,7 +153,7 @@ const App = () => {
       <Header text='Names' />
       <div>
         <Filter text='filter names with' value={filter} onChange={handleFilter} />
-        <Persons persons={personsToShow} />
+        <Persons persons={personsToShow} deleteHandler={deletePerson} />
       </div>
     </div>
   )
