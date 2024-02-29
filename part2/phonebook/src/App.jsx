@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
 import personService from './services/persons'
 
 const Header = (props) => {
@@ -11,7 +10,7 @@ const Header = (props) => {
 const Person = (props) => {
   return (
     <div>
-      <p>{props.person.name} {props.person.number} <button onClick={() => props.deleteHandler(props.person.id)}>delete</button></p>
+      <p>{props.person.name} {props.person.number} <button onClick={props.deleteRecord}>delete</button></p>
     </div>
   )
 }
@@ -20,7 +19,7 @@ const Persons = (props) => {
   return (
     <div>
       {props.persons.map(person =>
-          <Person key={person.id} person={person} deleteHandler={props.deleteHandler} />
+          <Person key={person.id} person={person} deleteRecord={() => props.deleteHandler(person.id)} />
       )}
     </div>
   )
@@ -89,9 +88,24 @@ const App = () => {
       window.alert('No number provided! Please fill all details before submitting.')
     } else {
       if (checkNameExists(newName, persons)) {
-        window.alert(`${newName} is already added to phonebook`)
-        setNewName('')
-        setNewNumber('')
+        if (window.confirm(`'${newName}' is already added to the phonebook, replace the old number with the new number?`)) {
+          const personRecord = persons.find(person => person.name === newName)
+          const changedRecord = { ...personRecord, name: newName, number: newNumber }
+
+          personService
+            .update(changedRecord.id, changedRecord)
+            .then(returnedRecord => {
+              setPersons(persons.map(person => person.id !== changedRecord.id ? person : returnedRecord))
+              setNewName('')
+              setNewNumber('')
+            })
+            .catch(error => {
+              console.log(error)
+            })
+        } else {
+          setNewName('')
+          setNewNumber('')
+        }
       } else {
         const nameObject = {
           name: newName,
@@ -127,10 +141,10 @@ const App = () => {
     }
   })
 
-  const deletePerson = (personId) => {
+  const deleteRecordOf = (personId) => {
     const person = persons.find(person => person.id === personId)
 
-    if (window.confirm(`Delete ${person.name}`)) {
+    if (window.confirm(`Delete ${person.name}?`)) {
       console.log(`Deleting person with id ${personId}`)
       personService
         .deleteRecord(personId)
@@ -153,7 +167,7 @@ const App = () => {
       <Header text='Names' />
       <div>
         <Filter text='filter names with' value={filter} onChange={handleFilter} />
-        <Persons persons={personsToShow} deleteHandler={deletePerson} />
+        <Persons persons={personsToShow} deleteHandler={deleteRecordOf} />
       </div>
     </div>
   )
