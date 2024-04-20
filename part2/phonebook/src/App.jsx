@@ -58,11 +58,24 @@ const Filter = (props) => {
   )
 }
 
+const Alert = (props) => {
+  if (props.message === null) {
+    return null
+  }
+
+  return (
+    <div className={props.type}>
+      {props.message}
+    </div>
+  )
+}
+
 const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
+  const [alertMessage, setAlertMessage] = useState(null)
 
   const fetchData = () => {
     personService
@@ -98,6 +111,10 @@ const App = () => {
               setPersons(persons.map(person => person.id !== changedRecord.id ? person : returnedRecord))
               setNewName('')
               setNewNumber('')
+              setAlertMessage(`Updated phonebook entry for '${returnedRecord.name}'`)
+              setTimeout(() => {
+                setAlertMessage(null)
+              }, 5000)
             })
             .catch(error => {
               console.log(error)
@@ -117,7 +134,11 @@ const App = () => {
           .then(returnedPerson => {
             setPersons(persons.concat(returnedPerson))
             setNewName('')
-            setNewNumber('')            
+            setNewNumber('')
+            setAlertMessage(`Created new phonebook entry for '${returnedPerson.name}'`)
+            setTimeout(() => {
+              setAlertMessage(null)
+            }, 5000)      
           })
       }
     }
@@ -163,6 +184,7 @@ const App = () => {
   return (
     <div>
       <Header text='Phonebook' />
+      <Alert message={alertMessage} type="success" />
       <PersonForm inputs={[{id: 1, text: 'name', value: newName, onChange: handleNameChange}, {id: 2, text: 'number', value: newNumber, onChange: handleNumberChange}]} onSubmit={addEntry} />
       <Header text='Names' />
       <div>
