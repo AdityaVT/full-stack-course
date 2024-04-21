@@ -76,6 +76,7 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
   const [alertMessage, setAlertMessage] = useState(null)
+  const [alertMessageType, setAlertMessageType] = useState(null)
 
   const fetchData = () => {
     personService
@@ -111,6 +112,7 @@ const App = () => {
               setPersons(persons.map(person => person.id !== changedRecord.id ? person : returnedRecord))
               setNewName('')
               setNewNumber('')
+              setAlertMessageType('success')
               setAlertMessage(`Updated phonebook entry for '${returnedRecord.name}'`)
               setTimeout(() => {
                 setAlertMessage(null)
@@ -118,6 +120,14 @@ const App = () => {
             })
             .catch(error => {
               console.log(error)
+              setAlertMessageType('error')
+              setAlertMessage(`Phone record entry for '${changedRecord.name}' has already been removed from server`)
+              setTimeout(() => {
+                setAlertMessage(null)
+              }, 5000)
+              setPersons(persons.filter(person => person.id !== changedRecord.id))
+              setNewName('')
+              setNewNumber('')
             })
         } else {
           setNewName('')
@@ -135,6 +145,7 @@ const App = () => {
             setPersons(persons.concat(returnedPerson))
             setNewName('')
             setNewNumber('')
+            setAlertMessageType('success')
             setAlertMessage(`Created new phonebook entry for '${returnedPerson.name}'`)
             setTimeout(() => {
               setAlertMessage(null)
@@ -184,7 +195,7 @@ const App = () => {
   return (
     <div>
       <Header text='Phonebook' />
-      <Alert message={alertMessage} type="success" />
+      <Alert message={alertMessage} type={alertMessageType} />
       <PersonForm inputs={[{id: 1, text: 'name', value: newName, onChange: handleNameChange}, {id: 2, text: 'number', value: newNumber, onChange: handleNumberChange}]} onSubmit={addEntry} />
       <Header text='Names' />
       <div>
