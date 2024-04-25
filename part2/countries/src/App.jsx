@@ -5,13 +5,16 @@ import countryService from './services/countries'
 const CountryList = (props) => {
   return (
     <div>
-      {props.list.map((country) => <p key={country}>{country}</p>)}
+      {props.list.map((country) => 
+        <p key={country}>
+          {country} <button onClick={() => props.onClick(country)}>show</button>
+        </p>)}
+      <CountryInfo data={props.data} />
     </div> 
   )
 }
 
 const CountryInfo = (props) => {
-  console.log('data: ', props.data)
   if (Object.keys(props.data).length !== 0) {
     return (
       <div>
@@ -41,7 +44,7 @@ const Display = (props) => {
       )
     } else {
       return (
-        <CountryList list={props.list} />
+        <CountryList list={props.list} onClick={props.handler} data={props.data} />
       )
     }
   }
@@ -52,6 +55,7 @@ const App = () => {
   const [filter, setFilter] = useState('')
   const [country, setCountry] = useState(null)
   const [countryData, setCountryData] = useState({})
+  const [show, setShow] = useState(null)
 
   const getCountriesList = () => {
     countryService
@@ -80,6 +84,21 @@ const App = () => {
 
   useEffect(getCountryData, [country])
 
+  const getShowData = () => {
+    console.log(`fetching ${show} information`)
+    if (show) {
+      countryService
+      .getCountryData(show)
+      .then(showData => setCountryData(showData))
+      .catch((error) => {
+        console.log('Could not fetch country data...')
+        console.log(error)
+      })
+    }
+  }
+
+  useEffect(getShowData, [show])
+
   const handleFilterChange = (event) => {
     setFilter(event.target.value)
 
@@ -107,15 +126,14 @@ const App = () => {
     }
   })
 
-  console.log('filter', filter)
-  console.log('countryFilter', countryFilter)
-  console.log('country', country)
-  console.log('countryData', countryData)
+  const onClickShow = (country) => {
+    setShow(country)
+  }
 
   return (
     <div>
       find countries: <input value={filter} onChange={handleFilterChange} />
-      <Display data={countryData} list={countryFilter} />
+      <Display data={countryData} list={countryFilter} handler={onClickShow}/>
     </div>
   )
 }
